@@ -164,6 +164,11 @@ Two parsing modes are supported:
 - Custom fields ``(X-*)`` are supported
 - Parser is generic and extensible
 
+### Robust Parsing Strategy
+
+Lines that do not match the expected `name:value` structure are ignored instead of causing the whole parsing process to fail.
+This makes the parser more resilient when handling partially malformed input while still enforcing structural validation for complete vCards.
+
 ---
 
 ## ⚠️ Limitations

@@ -216,7 +216,7 @@ class VCardParser
 
     private function parseLine(string $line): ?VCardField
     {
-        if (!str_contains($line, ':')) {
+        if (!$this->isParsablePropertyLine($line)) {
             return null;
         }
 
@@ -289,5 +289,10 @@ class VCardParser
                 "Unsupported VCARD version: {$version}. Only vCard " . self::SUPPORTED_VERSION . ' is supported.'
             );
         }
+    }
+
+    private function isParsablePropertyLine(string $line): bool
+    {
+        return str_contains($line, ':');
     }
 }
