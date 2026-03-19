@@ -2,4 +2,6 @@ BEGIN:VCARD
 VERSION:4.0
 FN:John Doe
 EMAIL:john@example.com
+NOTE:Hello world
+ continued text
 END:VCARD

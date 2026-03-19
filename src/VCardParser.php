@@ -38,6 +38,8 @@ class VCardParser
         }
 
         $lines = explode("\n", $content);
+        $lines = $this->unfoldLines($lines);
+
         $cards = $this->splitCards($lines);
 
         if ($cards === []) {
@@ -51,6 +53,33 @@ class VCardParser
         }
 
         return $result;
+    }
+
+    /**
+     * @param string[] $lines
+     * @return string[]
+     */
+    private function unfoldLines(array $lines): array
+    {
+        $unfolded = [];
+
+        foreach ($lines as $line) {
+            if ($line === '') {
+                $unfolded[] = $line;
+                continue;
+            }
+
+            $firstCharacter = $line[0];
+
+            if (($firstCharacter === ' ' || $firstCharacter === "\t") && !empty($unfolded)) {
+                $unfolded[count($unfolded) - 1] .= substr($line, 1);
+                continue;
+            }
+
+            $unfolded[] = $line;
+        }
+
+        return $unfolded;
     }
 
     /**
@@ -106,11 +135,13 @@ class VCardParser
         $card = new VCard();
 
         foreach ($lines as $line) {
-            if ($line === '' || $line === 'BEGIN:VCARD' || $line === 'END:VCARD') {
+            $trimmedLine = trim($line);
+
+            if ($trimmedLine === '' || $trimmedLine === 'BEGIN:VCARD' || $trimmedLine === 'END:VCARD') {
                 continue;
             }
 
-            $field = $this->parseLine($line);
+            $field = $this->parseLine($trimmedLine);
 
             if ($field !== null) {
                 $card->addField($field);
