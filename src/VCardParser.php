@@ -2,26 +2,25 @@
 
 declare(strict_types=1);
 
+namespace VCard;
+
+use InvalidArgumentException;
+use RuntimeException;
+use Throwable;
+
 class VCardParser
 {
+    private const BEGIN_VCARD = 'BEGIN:VCARD';
+    private const END_VCARD = 'END:VCARD';
+    private const VERSION_FIELD = 'VERSION';
+    private const SUPPORTED_VERSION = '4.0';
+
     /**
      * @return VCard[]
      */
     public function parseFile(string $path): array
     {
-        if (!is_file($path)) {
-            throw new InvalidArgumentException("File not found: {$path}");
-        }
-
-        if (!is_readable($path)) {
-            throw new InvalidArgumentException("File is not readable: {$path}");
-        }
-
-        $content = file_get_contents($path);
-
-        if ($content === false) {
-            throw new RuntimeException("Failed to read file: {$path}");
-        }
+        $content = $this->readFileContents($path);
 
         return $this->parseString($content);
     }
@@ -31,19 +30,7 @@ class VCardParser
      */
     public function parseFileWithReport(string $path): array
     {
-        if (!is_file($path)) {
-            throw new InvalidArgumentException("File not found: {$path}");
-        }
-
-        if (!is_readable($path)) {
-            throw new InvalidArgumentException("File is not readable: {$path}");
-        }
-
-        $content = file_get_contents($path);
-
-        if ($content === false) {
-            throw new RuntimeException("Failed to read file: {$path}");
-        }
+        $content = $this->readFileContents($path);
 
         return $this->parseStringWithReport($content);
     }
@@ -73,13 +60,13 @@ class VCardParser
      */
     public function parseStringWithReport(string $content): array
     {
-        $content = str_replace(["\r\n", "\r"], "\n", $content);
+        $normalizedContent = str_replace(["\r\n", "\r"], "\n", $content);
 
-        if (trim($content) === '') {
+        if (trim($normalizedContent) === '') {
             throw new InvalidArgumentException('Input content is empty.');
         }
 
-        $lines = explode("\n", $content);
+        $lines = explode("\n", $normalizedContent);
         $lines = $this->unfoldLines($lines);
 
         $cards = $this->splitCards($lines);
@@ -104,6 +91,25 @@ class VCardParser
             'cards' => $validCards,
             'errors' => $errors,
         ];
+    }
+
+    private function readFileContents(string $path): string
+    {
+        if (!is_file($path)) {
+            throw new InvalidArgumentException("File not found: {$path}");
+        }
+
+        if (!is_readable($path)) {
+            throw new InvalidArgumentException("File is not readable: {$path}");
+        }
+
+        $content = file_get_contents($path);
+
+        if ($content === false) {
+            throw new RuntimeException("Failed to read file: {$path}");
+        }
+
+        return $content;
     }
 
     /**
@@ -144,15 +150,15 @@ class VCardParser
         $insideCard = false;
 
         foreach ($lines as $line) {
-            $line = trim($line);
+            $normalizedLine = trim($line);
 
-            if ($line === 'BEGIN:VCARD') {
+            if ($normalizedLine === self::BEGIN_VCARD) {
                 if ($insideCard) {
                     throw new InvalidArgumentException('Nested BEGIN:VCARD detected.');
                 }
 
                 $insideCard = true;
-                $current = [$line];
+                $current = [$normalizedLine];
                 continue;
             }
 
@@ -160,7 +166,7 @@ class VCardParser
                 $current[] = $line;
             }
 
-            if ($line === 'END:VCARD') {
+            if ($normalizedLine === self::END_VCARD) {
                 if (!$insideCard) {
                     throw new InvalidArgumentException('END:VCARD found without BEGIN:VCARD.');
                 }
@@ -188,7 +194,11 @@ class VCardParser
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
 
-            if ($trimmedLine === '' || $trimmedLine === 'BEGIN:VCARD' || $trimmedLine === 'END:VCARD') {
+            if (
+                $trimmedLine === ''
+                || $trimmedLine === self::BEGIN_VCARD
+                || $trimmedLine === self::END_VCARD
+            ) {
                 continue;
             }
 
@@ -228,24 +238,27 @@ class VCardParser
 
             [$key, $parameterValue] = explode('=', $part, 2);
 
-            $key = strtoupper(trim($key));
-            $parameterValue = trim($parameterValue);
+            $normalizedKey = strtoupper(trim($key));
+            $normalizedParameterValue = trim($parameterValue);
 
-            if ($key === '') {
+            if ($normalizedKey === '') {
                 throw new InvalidArgumentException("Invalid parameter in line: {$line}");
             }
 
-            if ($parameterValue === '') {
-                $parameters[$key] = [];
+            if ($normalizedParameterValue === '') {
+                $parameters[$normalizedKey] = [];
                 continue;
             }
 
-            $values = array_map('trim', explode(',', $parameterValue));
-            $values = array_values(array_filter($values, static function (string $value): bool {
-                return $value !== '';
-            }));
+            $values = array_map('trim', explode(',', $normalizedParameterValue));
+            $values = array_values(array_filter(
+                $values,
+                static function (string $value): bool {
+                    return $value !== '';
+                }
+            ));
 
-            $parameters[$key] = $values;
+            $parameters[$normalizedKey] = $values;
         }
 
         return new VCardField(trim($name), $value, $parameters);
@@ -256,7 +269,7 @@ class VCardParser
         $versionFields = [];
 
         foreach ($card->getFields() as $field) {
-            if ($field->getName() === 'VERSION') {
+            if ($field->getName() === self::VERSION_FIELD) {
                 $versionFields[] = $field;
             }
         }
@@ -271,8 +284,10 @@ class VCardParser
 
         $version = trim($versionFields[0]->getValue());
 
-        if ($version !== '4.0') {
-            throw new InvalidArgumentException("Unsupported VCARD version: {$version}. Only vCard 4.0 is supported.");
+        if ($version !== self::SUPPORTED_VERSION) {
+            throw new InvalidArgumentException(
+                "Unsupported VCARD version: {$version}. Only vCard " . self::SUPPORTED_VERSION . ' is supported.'
+            );
         }
     }
 }

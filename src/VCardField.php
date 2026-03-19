@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace VCard;
+
 class VCardField
 {
     private string $name;
@@ -38,5 +40,15 @@ class VCardField
     public function getParameters(): array
     {
         return $this->parameters;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getParameter(string $name): ?array
+    {
+        $normalizedName = strtoupper($name);
+
+        return $this->parameters[$normalizedName] ?? null;
     }
 }

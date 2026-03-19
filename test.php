@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/src/VCardParser.php';
 require_once __DIR__ . '/src/VCard.php';
 require_once __DIR__ . '/src/VCardField.php';
+require_once __DIR__ . '/src/VCardParser.php';
 require_once __DIR__ . '/src/JCardExporter.php';
+
+use VCard\JCardExporter;
+use VCard\VCardParser;
 
 function printSeparator(string $title): void
 {
