@@ -8,10 +8,16 @@ require_once 'src/VCardField.php';
 
 try {
     $parser = new VCardParser();
-    $cards = $parser->parseFile('sample.vcf');
+    $report = $parser->parseFileWithReport('sample.vcf');
+
+    $cards = $report['cards'];
+    $errors = $report['errors'];
+
+    echo 'Valid vCards found: ' . count($cards) . PHP_EOL;
+    echo 'Invalid vCards found: ' . count($errors) . PHP_EOL . PHP_EOL;
 
     foreach ($cards as $index => $card) {
-        echo 'Card ' . ($index + 1) . PHP_EOL;
+        echo 'Valid Card ' . ($index + 1) . ':' . PHP_EOL;
 
         foreach ($card->getFields() as $field) {
             echo $field->getName() . ': ' . $field->getValue() . PHP_EOL;
@@ -23,6 +29,14 @@ try {
 
         echo PHP_EOL;
     }
+
+    if ($errors !== []) {
+        echo 'Errors:' . PHP_EOL;
+
+        foreach ($errors as $error) {
+            echo '- ' . $error . PHP_EOL;
+        }
+    }
 } catch (Throwable $exception) {
-    echo 'Error: ' . $exception->getMessage() . PHP_EOL;
+    echo 'Fatal Error: ' . $exception->getMessage() . PHP_EOL;
 }

@@ -27,9 +27,51 @@ class VCardParser
     }
 
     /**
+     * @return array{cards: VCard[], errors: array<int, string>}
+     */
+    public function parseFileWithReport(string $path): array
+    {
+        if (!is_file($path)) {
+            throw new InvalidArgumentException("File not found: {$path}");
+        }
+
+        if (!is_readable($path)) {
+            throw new InvalidArgumentException("File is not readable: {$path}");
+        }
+
+        $content = file_get_contents($path);
+
+        if ($content === false) {
+            throw new RuntimeException("Failed to read file: {$path}");
+        }
+
+        return $this->parseStringWithReport($content);
+    }
+
+    /**
      * @return VCard[]
      */
     public function parseString(string $content): array
+    {
+        $result = $this->parseStringWithReport($content);
+
+        if ($result['errors'] !== []) {
+            $firstError = reset($result['errors']);
+
+            if ($firstError !== false) {
+                throw new InvalidArgumentException($firstError);
+            }
+
+            throw new InvalidArgumentException('An unknown parsing error occurred.');
+        }
+
+        return $result['cards'];
+    }
+
+    /**
+     * @return array{cards: VCard[], errors: array<int, string>}
+     */
+    public function parseStringWithReport(string $content): array
     {
         $content = str_replace(["\r\n", "\r"], "\n", $content);
 
@@ -46,13 +88,22 @@ class VCardParser
             throw new InvalidArgumentException('No valid VCARD blocks found.');
         }
 
-        $result = [];
+        $validCards = [];
+        $errors = [];
 
-        foreach ($cards as $cardLines) {
-            $result[] = $this->parseCard($cardLines);
+        foreach ($cards as $index => $cardLines) {
+            try {
+                $validCards[] = $this->parseCard($cardLines);
+            } catch (Throwable $exception) {
+                $cardNumber = $index + 1;
+                $errors[] = "Card {$cardNumber}: " . $exception->getMessage();
+            }
         }
 
-        return $result;
+        return [
+            'cards' => $validCards,
+            'errors' => $errors,
+        ];
     }
 
     /**
