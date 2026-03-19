@@ -1,0 +1,73 @@
+BEGIN:VCARD
+VERSION:4.0
+N:Doe;John;;Mr;
+FN:Mr John Doe
+ORG:Copernica BV
+TITLE:Software Engineer
+PHOTO;MEDIATYPE=image/gif:http://www.example.com/dir_photos/my_photo.gif
+ADR:;De Ruijterkade 112;;Amsterdam;;1011AB;Nederland
+EMAIL;TYPE=work,internet:jobs@copernica.com
+TEL;TYPE=work,voice;VALUE=uri:tel:+31-20-1234567
+REV:20080424T195243Z
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+N:Smith;Jane;;Ms;
+FN:Ms Jane Smith
+ORG:Example Corp
+TITLE:Product Manager
+EMAIL;TYPE=work:jane.smith@example.com
+NOTE:Hello world
+ continued text
+X-CUSTOM-FIELD:Custom value
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+FN:Mixed Case Example
+email;type=home:home@example.com
+tel;type=cell,voice;value=uri:tel:+31-6-12345678
+END:VCARD
+
+BEGIN:VCARD
+FN:Missing Version
+EMAIL:no-version@example.com
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Wrong Version
+EMAIL:wrong-version@example.com
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+VERSION:4.0
+FN:Duplicate Version
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+;TYPE=home:missing-property-name@example.com
+FN:Invalid Property Name
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+EMAIL;=home:invalid-parameter-key@example.com
+FN:Invalid Parameter Key
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+FN:Empty Parameter Value Still Parses
+TEL;TYPE=:12345
+END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+FN:No Colon Line Demo
+THIS LINE HAS NO COLON
+EMAIL:nocolon@example.com
+END:VCARD

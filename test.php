@@ -2,58 +2,145 @@
 
 declare(strict_types=1);
 
-require_once 'src/VCardParser.php';
-require_once 'src/VCard.php';
-require_once 'src/VCardField.php';
-require_once 'src/JCardExporter.php';
+require_once __DIR__ . '/src/VCardParser.php';
+require_once __DIR__ . '/src/VCard.php';
+require_once __DIR__ . '/src/VCardField.php';
+require_once __DIR__ . '/src/JCardExporter.php';
 
-try {
-    $parser = new VCardParser();
-    $report = $parser->parseFileWithReport('sample.vcf');
+function printSeparator(string $title): void
+{
+    echo PHP_EOL;
+    echo str_repeat('=', 80) . PHP_EOL;
+    echo $title . PHP_EOL;
+    echo str_repeat('=', 80) . PHP_EOL;
+}
 
-    $cards = $report['cards'];
-    $errors = $report['errors'];
+function printSubSeparator(string $title): void
+{
+    echo PHP_EOL;
+    echo str_repeat('-', 80) . PHP_EOL;
+    echo $title . PHP_EOL;
+    echo str_repeat('-', 80) . PHP_EOL;
+}
 
-    echo 'Valid vCards found: ' . count($cards) . PHP_EOL;
-    echo 'Invalid vCards found: ' . count($errors) . PHP_EOL . PHP_EOL;
+function readUserInput(string $prompt): string
+{
+    echo $prompt;
+    $input = fgets(STDIN);
 
-    foreach ($cards as $index => $card) {
-        echo 'Valid Card ' . ($index + 1) . ':' . PHP_EOL;
-        echo '  FN    : ' . ($card->getFirstFieldValue('FN') ?? '-') . PHP_EOL;
-        echo '  EMAIL : ' . ($card->getFirstFieldValue('EMAIL') ?? '-') . PHP_EOL;
-        echo '  ORG   : ' . ($card->getFirstFieldValue('ORG') ?? '-') . PHP_EOL;
-        echo '  TITLE : ' . ($card->getFirstFieldValue('TITLE') ?? '-') . PHP_EOL;
-        echo PHP_EOL;
+    if ($input === false) {
+        return 'q';
+    }
 
-        echo '  All Fields:' . PHP_EOL;
+    return trim($input);
+}
 
-        foreach ($card->getFields() as $field) {
-            echo '    ' . $field->getName() . ': ' . $field->getValue() . PHP_EOL;
+function printMenu(array $files): void
+{
+    printSeparator('VCARD PARSER INTERACTIVE TEST');
 
-            foreach ($field->getParameters() as $key => $values) {
-                echo '      ' . $key . ' = [' . implode(', ', $values) . ']' . PHP_EOL;
+    echo 'Select a file to test:' . PHP_EOL . PHP_EOL;
+
+    foreach ($files as $index => $filePath) {
+        echo '  [' . ($index + 1) . '] ' . basename($filePath) . PHP_EOL;
+    }
+
+    echo PHP_EOL;
+    echo 'Enter a number (1-' . count($files) . ') or "q" to exit.' . PHP_EOL;
+}
+
+function runTestFile(string $filePath): void
+{
+    printSeparator('Testing: ' . basename($filePath));
+
+    try {
+        $parser = new VCardParser();
+        $report = $parser->parseFileWithReport($filePath);
+
+        $cards = $report['cards'];
+        $errors = $report['errors'];
+
+        echo 'Valid vCards   : ' . count($cards) . PHP_EOL;
+        echo 'Invalid vCards : ' . count($errors) . PHP_EOL;
+
+        if ($cards !== []) {
+            printSubSeparator('Parsed vCards');
+
+            foreach ($cards as $index => $card) {
+                echo 'Card #' . ($index + 1) . PHP_EOL;
+                echo '  FN    : ' . ($card->getFirstFieldValue('FN') ?? '-') . PHP_EOL;
+                echo '  EMAIL : ' . ($card->getFirstFieldValue('EMAIL') ?? '-') . PHP_EOL;
+                echo '  ORG   : ' . ($card->getFirstFieldValue('ORG') ?? '-') . PHP_EOL;
+                echo '  TITLE : ' . ($card->getFirstFieldValue('TITLE') ?? '-') . PHP_EOL;
+                echo PHP_EOL;
             }
         }
 
-        echo PHP_EOL;
-    }
+        if ($errors !== []) {
+            printSubSeparator('Errors');
 
-    if ($errors !== []) {
-        echo 'Errors:' . PHP_EOL;
-
-        foreach ($errors as $error) {
-            echo '- ' . $error . PHP_EOL;
+            foreach ($errors as $error) {
+                echo '- ' . $error . PHP_EOL;
+            }
         }
 
-        echo PHP_EOL;
+        if ($cards !== []) {
+            $exporter = new JCardExporter();
+
+            printSubSeparator('jCard (First Card)');
+            echo $exporter->exportAsJson($cards[0]) . PHP_EOL;
+        }
+    } catch (Throwable $exception) {
+        printSubSeparator('Fatal Error');
+        echo $exception->getMessage() . PHP_EOL;
+    }
+}
+
+$sampleDirectory = __DIR__ . '/vcard_samples';
+
+$files = [
+    $sampleDirectory . '/sample.vcf',
+    $sampleDirectory . '/sample_fatal_nested.vcf',
+    $sampleDirectory . '/sample_fatal_unclosed.vcf',
+    $sampleDirectory . '/sample_no_blocks.vcf',
+    $sampleDirectory . '/sample_empty.vcf',
+];
+
+$existingFiles = array_values(array_filter($files, 'is_file'));
+
+if ($existingFiles === []) {
+    printSeparator('ERROR');
+    echo 'No sample files found.' . PHP_EOL;
+    exit(1);
+}
+
+while (true) {
+    printMenu($existingFiles);
+
+    $input = readUserInput(PHP_EOL . 'Your choice: ');
+    $inputLower = strtolower($input);
+
+    if ($inputLower === 'q') {
+        printSeparator('EXIT');
+        echo 'Goodbye!' . PHP_EOL;
+        break;
     }
 
-    if ($cards !== []) {
-        $exporter = new JCardExporter();
-
-        echo 'jCard export for first valid card:' . PHP_EOL;
-        echo $exporter->exportAsJson($cards[0]) . PHP_EOL;
+    if (!ctype_digit($input)) {
+        printSeparator('INVALID SELECTION');
+        echo 'Please enter a valid number.' . PHP_EOL;
+        continue;
     }
-} catch (Throwable $exception) {
-    echo 'Fatal Error: ' . $exception->getMessage() . PHP_EOL;
+
+    $index = (int) $input - 1;
+
+    if (!isset($existingFiles[$index])) {
+        printSeparator('INVALID SELECTION');
+        echo 'Number out of range.' . PHP_EOL;
+        continue;
+    }
+
+    runTestFile($existingFiles[$index]);
+
+    readUserInput(PHP_EOL . 'Press Enter to return to menu...');
 }
