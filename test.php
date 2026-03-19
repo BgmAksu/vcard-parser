@@ -18,12 +18,19 @@ try {
 
     foreach ($cards as $index => $card) {
         echo 'Valid Card ' . ($index + 1) . ':' . PHP_EOL;
+        echo '  FN    : ' . ($card->getFirstFieldValue('FN') ?? '-') . PHP_EOL;
+        echo '  EMAIL : ' . ($card->getFirstFieldValue('EMAIL') ?? '-') . PHP_EOL;
+        echo '  ORG   : ' . ($card->getFirstFieldValue('ORG') ?? '-') . PHP_EOL;
+        echo '  TITLE : ' . ($card->getFirstFieldValue('TITLE') ?? '-') . PHP_EOL;
+        echo PHP_EOL;
+
+        echo '  All Fields:' . PHP_EOL;
 
         foreach ($card->getFields() as $field) {
-            echo $field->getName() . ': ' . $field->getValue() . PHP_EOL;
+            echo '    ' . $field->getName() . ': ' . $field->getValue() . PHP_EOL;
 
             foreach ($field->getParameters() as $key => $values) {
-                echo '  ' . $key . ' = [' . implode(', ', $values) . ']' . PHP_EOL;
+                echo '      ' . $key . ' = [' . implode(', ', $values) . ']' . PHP_EOL;
             }
         }
 

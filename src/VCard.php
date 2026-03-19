@@ -21,4 +21,43 @@ class VCard
     {
         return $this->fields;
     }
+
+    /**
+     * @return VCardField[]
+     */
+    public function getFieldsByName(string $name): array
+    {
+        $normalizedName = strtoupper($name);
+        $matchedFields = [];
+
+        foreach ($this->fields as $field) {
+            if ($field->getName() === $normalizedName) {
+                $matchedFields[] = $field;
+            }
+        }
+
+        return $matchedFields;
+    }
+
+    public function getFirstFieldByName(string $name): ?VCardField
+    {
+        $fields = $this->getFieldsByName($name);
+
+        if ($fields === []) {
+            return null;
+        }
+
+        return $fields[0];
+    }
+
+    public function getFirstFieldValue(string $name): ?string
+    {
+        $field = $this->getFirstFieldByName($name);
+
+        if ($field === null) {
+            return null;
+        }
+
+        return $field->getValue();
+    }
 }
