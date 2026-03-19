@@ -71,10 +71,10 @@ function runTestFile(string $filePath): void
 
             foreach ($cards as $index => $card) {
                 echo 'Card #' . ($index + 1) . PHP_EOL;
-                echo '  FN    : ' . ($card->getFirstFieldValue('FN') ?? '-') . PHP_EOL;
-                echo '  EMAIL : ' . ($card->getFirstFieldValue('EMAIL') ?? '-') . PHP_EOL;
-                echo '  ORG   : ' . ($card->getFirstFieldValue('ORG') ?? '-') . PHP_EOL;
-                echo '  TITLE : ' . ($card->getFirstFieldValue('TITLE') ?? '-') . PHP_EOL;
+                echo '  FN    : ' . ($card->getFullName() ?? '-') . PHP_EOL;
+                echo '  EMAIL : ' . ($card->getEmail() ?? '-') . PHP_EOL;
+                echo '  ORG   : ' . ($card->getOrganization() ?? '-') . PHP_EOL;
+                echo '  TITLE : ' . ($card->getTitle() ?? '-') . PHP_EOL;
                 echo PHP_EOL;
             }
         }

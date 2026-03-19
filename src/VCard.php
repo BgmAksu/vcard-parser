@@ -62,4 +62,35 @@ class VCard
 
         return $field->getValue();
     }
+
+    public function getFullName(): ?string
+    {
+        return $this->getFirstFieldValue('FN');
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->getFirstFieldValue('EMAIL');
+    }
+
+    public function getEmails(): array
+    {
+        $fields = $this->getFieldsByName('EMAIL');
+
+        return array_map(function ($field) {
+            return $field->getValue();
+        }, $fields);
+    }
+
+    public function getOrganization(): ?string
+    {
+        return $this->getFirstFieldValue('ORG');
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->getFirstFieldValue('TITLE');
+    }
+
+
 }
