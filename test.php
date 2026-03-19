@@ -1,18 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 require_once 'src/VCardParser.php';
 require_once 'src/VCard.php';
 require_once 'src/VCardField.php';
 
 $parser = new VCardParser();
-
 $cards = $parser->parseFile('sample.vcf');
 
 foreach ($cards as $index => $card) {
-    echo "Card " . ($index + 1) . PHP_EOL;
+    echo 'Card ' . ($index + 1) . PHP_EOL;
 
     foreach ($card->getFields() as $field) {
         echo $field->getName() . ': ' . $field->getValue() . PHP_EOL;
+
+        foreach ($field->getParameters() as $key => $value) {
+            echo '  ' . $key . ' = ' . $value . PHP_EOL;
+        }
     }
 
     echo PHP_EOL;
