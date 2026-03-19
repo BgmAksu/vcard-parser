@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once 'src/VCardParser.php';
 require_once 'src/VCard.php';
 require_once 'src/VCardField.php';
+require_once 'src/JCardExporter.php';
 
 try {
     $parser = new VCardParser();
@@ -43,6 +44,15 @@ try {
         foreach ($errors as $error) {
             echo '- ' . $error . PHP_EOL;
         }
+
+        echo PHP_EOL;
+    }
+
+    if ($cards !== []) {
+        $exporter = new JCardExporter();
+
+        echo 'jCard export for first valid card:' . PHP_EOL;
+        echo $exporter->exportAsJson($cards[0]) . PHP_EOL;
     }
 } catch (Throwable $exception) {
     echo 'Fatal Error: ' . $exception->getMessage() . PHP_EOL;
