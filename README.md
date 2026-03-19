@@ -145,18 +145,27 @@ The project separates responsibilities into dedicated classes:
 
 ### Error Handling Strategy
 
-Two parsing modes are supported:
+The parser supports two different parsing modes depending on the use case.
 
-#### Strict mode
+**Strict mode**
 
-`parseFile()` → throws an exception on the first error
+```php
+parseFile()
+```
 
-#### Report mode
+Throws an exception on the first parsing or validation error.
 
-`parseFileWithReport()` → returns:
+**Report mode**
 
-- valid cards
-- list of errors per card
+```php
+parseFileWithReport()
+```
+Processes all vCards in the file and returns:
+
+- successfully parsed valid cards
+- a list of errors for invalid cards
+
+This approach allows partially valid files to still be processed, which is especially useful when handling multiple vCards in a single input file.
 
 #### Flexible Parsing
 

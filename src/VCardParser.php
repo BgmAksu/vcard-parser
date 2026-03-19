@@ -26,6 +26,9 @@ class VCardParser
     }
 
     /**
+     *  Parse all vCards from a file and return both valid cards
+     *  and validation/parsing errors for invalid ones.
+     *
      * @return array{cards: VCard[], errors: array<int, string>}
      */
     public function parseFileWithReport(string $path): array
@@ -56,6 +59,9 @@ class VCardParser
     }
 
     /**
+     *  Parse all vCards in the given content and return both valid cards
+     *  and validation/parsing errors for invalid ones.
+     *
      * @return array{cards: VCard[], errors: array<int, string>}
      */
     public function parseStringWithReport(string $content): array
