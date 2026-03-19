@@ -164,20 +164,40 @@ class VCardParser
         $parts = explode(';', $left);
         $name = array_shift($parts);
 
-        if ($name === null || $name === '') {
+        if ($name === null || trim($name) === '') {
             throw new InvalidArgumentException("Invalid property line: {$line}");
         }
 
         $parameters = [];
 
         foreach ($parts as $part) {
-            if (str_contains($part, '=')) {
-                [$key, $parameterValue] = explode('=', $part, 2);
-                $parameters[$key] = $parameterValue;
+            if (!str_contains($part, '=')) {
+                continue;
             }
+
+            [$key, $parameterValue] = explode('=', $part, 2);
+
+            $key = strtoupper(trim($key));
+            $parameterValue = trim($parameterValue);
+
+            if ($key === '') {
+                throw new InvalidArgumentException("Invalid parameter in line: {$line}");
+            }
+
+            if ($parameterValue === '') {
+                $parameters[$key] = [];
+                continue;
+            }
+
+            $values = array_map('trim', explode(',', $parameterValue));
+            $values = array_values(array_filter($values, static function (string $value): bool {
+                return $value !== '';
+            }));
+
+            $parameters[$key] = $values;
         }
 
-        return new VCardField($name, $value, $parameters);
+        return new VCardField(trim($name), $value, $parameters);
     }
 
     private function validateCard(VCard $card): void
@@ -185,7 +205,7 @@ class VCardParser
         $versionFields = [];
 
         foreach ($card->getFields() as $field) {
-            if (strtoupper($field->getName()) === 'VERSION') {
+            if ($field->getName() === 'VERSION') {
                 $versionFields[] = $field;
             }
         }

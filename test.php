@@ -16,8 +16,8 @@ try {
         foreach ($card->getFields() as $field) {
             echo $field->getName() . ': ' . $field->getValue() . PHP_EOL;
 
-            foreach ($field->getParameters() as $key => $value) {
-                echo '  ' . $key . ' = ' . $value . PHP_EOL;
+            foreach ($field->getParameters() as $key => $values) {
+                echo '  ' . $key . ' = [' . implode(', ', $values) . ']' . PHP_EOL;
             }
         }
 

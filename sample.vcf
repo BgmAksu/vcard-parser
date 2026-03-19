@@ -5,3 +5,12 @@ EMAIL:john@example.com
 NOTE:Hello world
  continued text
 END:VCARD
+
+BEGIN:VCARD
+VERSION:4.0
+FN:John Doe
+EMAIL;TYPE=work,home:john@example.com
+TEL;TYPE=work,voice;VALUE=uri:tel:+31-20-1234567
+NOTE:Hello world
+ continued text
+END:VCARD

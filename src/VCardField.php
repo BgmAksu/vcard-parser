@@ -8,16 +8,16 @@ class VCardField
     private string $value;
 
     /**
-     * @var array<string, string>
+     * @var array<string, array<int, string>>
      */
     private array $parameters;
 
     /**
-     * @param array<string, string> $parameters
+     * @param array<string, array<int, string>> $parameters
      */
     public function __construct(string $name, string $value, array $parameters = [])
     {
-        $this->name = $name;
+        $this->name = strtoupper($name);
         $this->value = $value;
         $this->parameters = $parameters;
     }
@@ -33,7 +33,7 @@ class VCardField
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, array<int, string>>
      */
     public function getParameters(): array
     {
