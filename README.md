@@ -73,14 +73,14 @@ php test.php
 
 You will see a list of available sample files:
 
-```bash
+```text
 [1] sample.vcf
 [2] sample_fatal_nested.vcf
 [3] sample_fatal_unclosed.vcf
 ...
 ```
 
-Input options
+### Input options
 
 - Enter a number → run that test case
 
@@ -90,9 +90,9 @@ Input options
 
 ## 🧪 Example Output
 
-```bash
-Valid vCards   : 2
-Invalid vCards : 3
+```text
+Valid vCards   : 5
+Invalid vCards : 5
 
 Parsed vCards
 --------------------------------------------------
@@ -101,11 +101,12 @@ Card #1
   EMAIL : jobs@copernica.com
   ORG   : Copernica BV
   TITLE : Software Engineer
+...
 ```
 
-Error Reporting
+### Error Reporting
 
-```bash
+```text
 Errors
 --------------------------------------------------
 - Card 3: Each VCARD must contain exactly one VERSION field.
@@ -119,7 +120,7 @@ Errors
 
 Example output:
 
-```bash
+```text
 [
   "vcard",
   [
@@ -148,14 +149,14 @@ Two parsing modes are supported:
 
 #### Strict mode
 
-``parseFile()`` → throws an exception on the first error
+`parseFile()` → throws an exception on the first error
 
 #### Report mode
 
-``parseFileWithReport()`` → returns:
+`parseFileWithReport()` → returns:
 
-    - valid cards
-    - list of errors per card
+- valid cards
+- list of errors per card
 
 #### Flexible Parsing
 
@@ -190,7 +191,7 @@ Not implemented:
 
 ## 🧑‍💻 Author
 
-Begüm Aksu Yılmaz
+Begum AKSU YILMAZ
 
 ---
 
