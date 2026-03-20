@@ -76,6 +76,22 @@ function runTestFile(string $filePath): void
                 echo '  ORG   : ' . ($card->getOrganization() ?? '-') . PHP_EOL;
                 echo '  TITLE : ' . ($card->getTitle() ?? '-') . PHP_EOL;
                 echo PHP_EOL;
+
+                echo '  All Fields:' . PHP_EOL;
+
+                foreach ($card->getFields() as $field) {
+                    echo '    ' . $field->getName() . ': ' . $field->getValue() . PHP_EOL;
+
+                    foreach ($field->getParameters() as $key => $values) {
+                        if ($values === []) {
+                            continue;
+                        }
+
+                        echo '      ' . $key . ' = [' . implode(', ', $values) . ']' . PHP_EOL;
+                    }
+                }
+
+                echo PHP_EOL;
             }
         }
 

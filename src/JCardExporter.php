@@ -78,21 +78,20 @@ class JCardExporter
 
     /**
      * @param array<string, array<int, string>> $parameters
-     * @return array<string, mixed>
+     * @return object
      */
-    private function normalizeParameters(array $parameters): array
+    private function normalizeParameters(array $parameters): object
     {
         $normalized = [];
 
         foreach ($parameters as $key => $values) {
             if (count($values) === 1) {
                 $normalized[strtolower($key)] = $values[0];
-                continue;
+            } else {
+                $normalized[strtolower($key)] = $values;
             }
-
-            $normalized[strtolower($key)] = $values;
         }
 
-        return $normalized;
+        return (object) $normalized;
     }
 }
