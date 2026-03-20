@@ -18,7 +18,7 @@ FN:Ms Jane Smith
 ORG:Example Corp
 TITLE:Product Manager
 EMAIL;TYPE=work:jane.smith@example.com
-NOTE:Hello world
+NOTE:Hello world 
  continued text
 X-CUSTOM-FIELD:Custom value
 END:VCARD
